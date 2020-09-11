@@ -1,0 +1,45 @@
+﻿<Window 
+    x:Class="SettingWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    mc:Ignorable="d"
+    Title="Nico Live Program Setting" 
+    Width="400" Height="180" Icon="/AddIn.NicoLive;component/application.ico" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid VerticalAlignment="Top" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Label Content="Live ID or Community/Channel ID:" VerticalAlignment="Center" />
+            <TextBox x:Name="LiveIdTextBox" Grid.Column="1" VerticalAlignment="Center" />
+
+            <CheckBox x:Name="NgFilteringCheckBox" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center" >
+                <TextBlock Text="NG filtering" />
+            </CheckBox>
+            
+            <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Margin="0 10 0 0" HorizontalAlignment="Right">
+                <Hyperlink Click="Hyperlink_Click">My page</Hyperlink>
+            </TextBlock>
+        </Grid>
+        
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" Margin="10">
+            <Button Content="OK" Margin="0" HorizontalAlignment="Right" Width="80" Click="OkButton_Click" IsDefault="True" />
+            <Button Content="Cancel" Margin="5 0 0 0" HorizontalAlignment="Right" Width="80" Click="CancelButton_Click" IsCancel="True" />
+        </StackPanel>
+
+    </Grid>
+</Window>

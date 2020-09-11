@@ -1,0 +1,123 @@
+﻿<Window x:Class="MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:uc="clr-namespace:Pronama.Misao"
+    xmlns:vm="clr-namespace:Pronama.Misao.ViewModel"
+    xmlns:Converter="clr-namespace:Pronama.Misao.Converter"
+    Title="MISAO" Height="400" Width="525" Icon="/Misao;component/application.ico">
+
+    <Window.Resources>
+        <Style TargetType="{x:Type ListViewItem}">
+            <Style.Triggers>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                    <Setter Property="Background" Value="#F3F7FB"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Converter:NegationConverter x:Key="NegationConverter"/>
+        <Converter:NegationBooleanToVisibilityConverter x:Key="NegationBooleanToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
+
+    <Grid>
+        <!--<Grid.RowDefinitions>
+            <RowDefinition />
+        </Grid.RowDefinitions>-->
+
+        <ListBox ItemsSource="{Binding AddInItems}"
+                 HorizontalContentAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Height="70">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Image Source="{Binding IconUri}" Width="48" Height="48" SnapsToDevicePixels="True" Margin="5" VerticalAlignment="Top" />
+                        
+                        <StackPanel Grid.Column="1">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold" Margin="5 5 5 0" />
+                                <TextBlock Text="[Disabled]" Margin="5 5 5 0" Visibility="{Binding IsEnabled, Converter={StaticResource NegationBooleanToVisibilityConverter}}" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding Description}" 
+                                       HorizontalAlignment="Left"
+                                       Margin="5" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" Height="48" />
+                        </StackPanel>
+                        
+                        <StackPanel x:Name="designerContent" Grid.Column="2" VerticalAlignment="Top">
+                            <StackPanel.Style>
+                                <Style TargetType="{x:Type StackPanel}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBoxItem}}, Path=IsSelected}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            
+                            <!-- Enable button -->
+                            <Button Width="80" Margin="5 8 5 0" Command="{Binding ActivateCommand}">
+                                <Button.Style>
+                                    <Style TargetType="{x:Type Button}">
+                                        <Setter Property="Content" Value="Enable"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding HasWindow}" Value="True" />
+                                                    <Condition Binding="{Binding IsEnabled}" Value="False" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Content" Value="Show"/>
+                                            </MultiDataTrigger>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding HasWindow}" Value="True" />
+                                                    <Condition Binding="{Binding IsEnabled}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Content" Value="Close"/>
+                                            </MultiDataTrigger>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding HasWindow}" Value="False" />
+                                                    <Condition Binding="{Binding IsEnabled}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Content" Value="Disable"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            
+                            <!-- Setting button -->
+                            <Button Width="80" Margin="5"
+                                    Content="Setting..." Visibility="{Binding Path=HasSetting, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Command="{Binding ShowDialogCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <!--<TabControl Margin="10">
+            <TabItem Header="Source">
+                <ListBox Margin="5" ItemsSource="{Binding SourceAddInItems}"
+                         ItemTemplate="{StaticResource AddInViewTemplate}"
+                         HorizontalContentAlignment="Stretch" />
+            </TabItem>
+            <TabItem Header="Viewer">
+                <ListBox Margin="5" ItemsSource="{Binding ViewerAddInItems}"
+                         ItemTemplate="{StaticResource AddInViewTemplate}"
+                         HorizontalContentAlignment="Stretch" />
+            </TabItem>
+        </TabControl>-->
+        
+        <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="1" Margin="5 5 10 10">
+            <Button Content="Connect" Command="{Binding ConnectCommand}" Width="80" />
+            <Button Content="Disconnect" Command="{Binding DisconnectCommand}" Width="80" Margin="10 0 0 0" />
+
+        </StackPanel>-->
+    </Grid>
+</Window>
