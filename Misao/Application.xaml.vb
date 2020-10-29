@@ -1,4 +1,5 @@
-﻿Imports System.Windows.Shell
+﻿Imports System.Net
+Imports System.Windows.Shell
 Imports System.Reflection
 
 Class Application
@@ -7,6 +8,8 @@ Class Application
     ' can be handled in this file.
 
     Private Sub Application_Startup(ByVal sender As Object, ByVal e As System.Windows.StartupEventArgs) Handles Me.Startup
+
+        ServicePointManager.SecurityProtocol = ServicePointManager.SecurityProtocol Or SecurityProtocolType.Tls12
 
         Dim jumpList = New JumpList
         jumpList.SetJumpList(Application.Current, jumpList)

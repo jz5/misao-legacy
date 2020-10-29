@@ -10,7 +10,7 @@ Imports System.Windows.Media
 Imports System.Web
 Imports Pronama.Misao
 Imports System.Security.Cryptography
-Imports LinqToTwitter
+Imports CoreTweet
 
 <AddInExport("{1eb21ee5-9321-4abb-ac6a-7decf5334863}", "Twitter Timeline",
     Description:="Get filtered twitter timeline",
@@ -25,7 +25,7 @@ Public Class TwitTimelineSource
     Private Activated As Boolean
     Private Client As TwitterClient
 
-    Private TwitterAuthorizer As ITwitterAuthorizer
+    Private TwitterAuthorizer As Tokens
     Private setting As TwitTimelineSetting
 
     Private Sub Start()
@@ -38,7 +38,7 @@ Public Class TwitTimelineSource
 
         Activated = True
 
-        Dim Worker = New Thread(
+        Dim worker = New Thread(
             Sub()
                 Try
                     If Not Activated Then
@@ -86,7 +86,7 @@ Public Class TwitTimelineSource
                 End Try
             End Sub
         )
-        Worker.Start()
+        worker.Start()
 
     End Sub
 
@@ -97,7 +97,7 @@ Public Class TwitTimelineSource
             Return False
         End If
 
-        If TwitterAuthorizer Is Nothing OrElse Not TwitterAuthorizer.IsAuthorized Then
+        If TwitterAuthorizer Is Nothing Then
             Dim auth = TwitterClient.SingleUserAuthorization(setting)
             If auth Is Nothing Then
                 Return False

@@ -1,33 +1,26 @@
 ﻿Imports System.Net
-Imports System.IO
-Imports System.Runtime.Serialization.Json
-Imports System.Text
-Imports System.Xml
-Imports LinqToTwitter
+Imports System.Threading
+Imports System.Threading.Tasks
 Imports System.Windows
-Imports LitJson
+Imports CoreTweet
 
 Public Class TwitterClient
     Implements IDisposable
 
-    Private Const ConsumerKey As String = "xxxxxxxxxxxxxxxxxxxxxxx"
-    Private Const ConsumerSecret As String = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    Private Const ConsumerKey As String = ""
+    Private Const ConsumerSecret As String = ""
 
     Private Const TIMEOUT As Integer = 60 * 1000 '60sec
     Private Const READ_WRITE_TIMEOUT As Integer = 120 * 1000 '120sec
 
-    Private TwitterContext As TwitterContext = Nothing
-    Private TwitterAuth As ITwitterAuthorizer = Nothing
-    Private TwitterStream As Streaming = Nothing
+    Private TwitterAuth As Tokens = Nothing
+    Private c As CancellationTokenSource
 
     Public Property SearchWord As String
 
-    Public Sub Connect(auth As ITwitterAuthorizer)
+    Public Sub Connect(auth As Tokens)
         Me.TwitterAuth = auth
-        Me.TwitterContext = New TwitterContext(Me.TwitterAuth)
-        Me.TwitterContext.Timeout = TIMEOUT
-        Me.TwitterContext.ReadWriteTimeout = READ_WRITE_TIMEOUT
-        Me.TwitterContext.AuthorizedClient.UseCompression = False
+        c = new CancellationTokenSource()
     End Sub
 
     Private Sub Reconnect()
@@ -41,76 +34,62 @@ Public Class TwitterClient
 
     Public Sub DoStreaming()
 
-        Dim filterStream =
-            From s
-            In Me.TwitterContext.Streaming
-            Where s.Type = StreamingType.Filter And s.Track = SearchWord
-            Select s
+        Dim since As Long
+        Do
+            If c?.IsCancellationRequested Then
+                Exit Do
+            End If
 
-        Me.TwitterStream =
-            filterStream.StreamingCallback(Sub(stream)
-                                               Try
-                                                   If stream.Status <> TwitterErrorStatus.Success Then
+            Dim d = New Dictionary(Of String, Object) From {
+                    {"q", Me.SearchWord},
+                    {"result_type", "recent"},
+                    {"tweet_mode", TweetMode.Extended}}
 
-                                                       Dim wex As WebException = TryCast(stream.Error, WebException)
-                                                       If wex IsNot Nothing Then
-                                                           Me.WriteLog(stream.Error.Message)
-                                                           If wex.Status = WebExceptionStatus.Timeout Then
-                                                               Me.Reconnect()
-                                                           End If
-                                                       Else
-                                                           Debug.WriteLine(stream.Error.ToString())
-                                                           Me.WriteLog(stream.Error.Message)
-                                                           Me.Disconnect()
-                                                       End If
-                                                       Exit Sub
-                                                   End If
+            If since > 0 Then
+                d.Add("since_id", since)
+            End If
 
-                                                   Dim msg = Me.GetTweetMessage(stream.Content)
-                                                   If msg IsNot Nothing Then
-                                                       RaiseEvent MessageReceived(
-                                                           Me, New MessageReceiveEventArgs() With {.Tweet = msg})
-                                                   End If
-                                               Catch ex As Exception
-                                                   Me.WriteLog(ex.Message)
-                                               End Try
-                                           End Sub).SingleOrDefault()
+            Dim results = Me.TwitterAuth.Search.Tweets(d).
+                    Where(Function(s) s.RetweetedStatus Is Nothing).ToList()
+
+            since = If(results.Any(), results.Max(Function(s) s.Id), since)
+
+            For Each status As Status In results
+                If c?.IsCancellationRequested Then
+                    Exit Do
+                End If
+
+                RaiseEvent MessageReceived(
+                    Me, New MessageReceiveEventArgs() With {.Tweet = New TweetMessage(status)})
+
+                Task.Delay(TimeSpan.FromSeconds(15 / results.Count)).Wait()
+            Next
+
+            If 15 - results.Count > 0 Then
+                Task.Delay(TimeSpan.FromSeconds(15 - results.Count)).Wait()
+            End If
+        Loop
+
     End Sub
 
-    Public Shared Function SingleUserAuthorization(settings As TwitTimelineSetting) As SingleUserAuthorizer
+    Public Shared Function SingleUserAuthorization(settings As TwitTimelineSetting) As Tokens
 
-        Dim auth = New SingleUserAuthorizer With {
-            .Credentials = New InMemoryCredentials With
-                           {
-                               .ConsumerKey = ConsumerKey,
-                               .ConsumerSecret = ConsumerSecret,
-                               .AccessToken = TwitTimelineSetting.Decrypt(settings.ToString, settings.AccessToken),
-                               .OAuthToken = TwitTimelineSetting.Decrypt(settings.AccessToken, settings.OAuthToken)
-                           },
-            .UseCompression = True
-        }
-        Return auth
+        Return Tokens.Create(ConsumerKey,
+                             ConsumerSecret,
+                      TwitTimelineSetting.Decrypt(settings.ToString, settings.AccessToken),
+                      TwitTimelineSetting.Decrypt(settings.AccessToken, settings.OAuthToken))
 
     End Function
 
-    Public Shared Function PinAuthorization() As PinAuthorizer
+    Public Shared Function PinAuthorization() As Tokens
 
-        Dim auth = New PinAuthorizer With
-                   {
-                       .Credentials = New InMemoryCredentials With
-                                      {
-                                            .ConsumerKey = ConsumerKey,
-                                            .ConsumerSecret = ConsumerSecret
-                                      },
-                       .UseCompression = True,
-                       .GoToTwitterAuthorization = Sub(pageLink As String) Process.Start(pageLink),
-                       .GetPin = Function()
-                                     Return InputBox("Please input PIN code here.")
-                                 End Function
-                   }
         Try
-            auth.Authorize()
-            Return auth
+            Dim session = OAuth.Authorize(ConsumerKey, ConsumerSecret)
+            Process.Start(session.AuthorizeUri.AbsoluteUri)
+
+            Dim pin = InputBox("Please input PIN code here.")
+            Dim tokens = session.GetTokens(pin)
+            Return tokens
 
         Catch ex As WebException
             MessageBox.Show(ex.Message)
@@ -121,29 +100,9 @@ Public Class TwitterClient
 
     Public Sub Disconnect()
 
-        If Me.TwitterStream IsNot Nothing Then
-            Me.TwitterStream.CloseStream()
-            Me.TwitterStream = Nothing
-        End If
-
-        If Me.TwitterContext IsNot Nothing Then
-            Me.TwitterContext = Nothing
-        End If
+        c?.Cancel()
 
     End Sub
-
-    Private Function GetTweetMessage(ByVal content As String) As TweetMessage
-
-        If String.IsNullOrEmpty(content.Trim) Then
-            Return Nothing
-        End If
-
-        Dim data = JsonMapper.ToObject(content)
-        Dim status = New Status(data)
-
-        Return New TweetMessage(status)
-
-    End Function
 
     Private Sub WriteLog(message As String)
         RaiseEvent ErrorMessageReceived(

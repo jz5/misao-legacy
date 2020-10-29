@@ -148,7 +148,7 @@ Partial Public Class DisplayWindow
             If Setting.EnableAx AndAlso
                 (displayMessage.Motion = MessageMotion.Undefined OrElse displayMessage.Motion = MessageMotion.FlowDown OrElse displayMessage.Motion = MessageMotion.FlowUp) AndAlso
                displayMessage.Text.Contains("#マサカリ") Then
-                'box.SetAnimationGif(My.Resources.ax)
+                box.SetAnimationGif(My.Resources.ax)
             Else
                 box.ImageUri = displayMessage.ImageUri
             End If
@@ -246,9 +246,9 @@ Partial Public Class DisplayWindow
         Me.MainCanvas.Children.Add(box)
         box.UpdateLayout()
 
-        Dim rect As New Rect(Me.MainCanvas.ActualWidth, _
-                             0, _
-                             box.ActualWidth, _
+        Dim rect As New Rect(Me.MainCanvas.ActualWidth,
+                             0,
+                             box.ActualWidth,
                              box.ActualHeight)
 
         Canvas.SetLeft(box, Me.MainCanvas.ActualWidth)
@@ -265,8 +265,8 @@ Partial Public Class DisplayWindow
 
     End Sub
 
-    Private Function GetFlowMessageTop(ByVal newBox As OutlineTextControl, _
-                                       ByVal newRect As Rect, _
+    Private Function GetFlowMessageTop(ByVal newBox As OutlineTextControl,
+                                       ByVal newRect As Rect,
                                        ByVal displayKind As MessageMotion) As Double
 
         Dim isIntersectant As Boolean = False
@@ -296,11 +296,11 @@ Partial Public Class DisplayWindow
                     boxRect.Width += Setting.LargeFontSize
                 End If
 
-                If (boxRect.Top <= newRect.Top AndAlso newRect.Top <= boxRect.Top + boxRect.Height) OrElse _
+                If (boxRect.Top <= newRect.Top AndAlso newRect.Top <= boxRect.Top + boxRect.Height) OrElse
                    (boxRect.Top <= newRect.Top + newRect.Height AndAlso newRect.Top + newRect.Height <= boxRect.Top + boxRect.Height) Then
                     ' 高さが重なる範囲
 
-                    If (boxRect.Left <= newRect.Left AndAlso newRect.Left <= boxRect.Left + boxRect.Width) OrElse _
+                    If (boxRect.Left <= newRect.Left AndAlso newRect.Left <= boxRect.Left + boxRect.Width) OrElse
                        (boxRect.Left <= newRect.Left + newRect.Width AndAlso newRect.Left + newRect.Width <= boxRect.Left + boxRect.Width) Then
                         ' 横も重なる
                         isIntersectant = True
@@ -364,10 +364,10 @@ Partial Public Class DisplayWindow
 
             End Try
 
-            newRect = New Rect( _
-                newRect.X, _
-                randomizer.Next(0, range), _
-                newRect.Width, _
+            newRect = New Rect(
+                newRect.X,
+                randomizer.Next(0, range),
+                newRect.Width,
                 newRect.Height)
         End If
 
@@ -406,10 +406,10 @@ Partial Public Class DisplayWindow
         Loop
 
         ' Canvas 配置(中央・一番下)
-        Dim rect As New Rect( _
-            Me.MainCanvas.ActualWidth / 2.0 - box.ActualWidth / 2.0, _
-            Me.MainCanvas.ActualHeight - box.ActualHeight - TopBottomMargin - 10, _
-            box.ActualWidth, _
+        Dim rect As New Rect(
+            Me.MainCanvas.ActualWidth / 2.0 - box.ActualWidth / 2.0,
+            Me.MainCanvas.ActualHeight - box.ActualHeight - TopBottomMargin - 10,
+            box.ActualWidth,
             box.ActualHeight)
 
         Canvas.SetLeft(box, rect.Left)
@@ -439,10 +439,10 @@ Partial Public Class DisplayWindow
                 Continue For
             End If
 
-            Dim rect = New Rect( _
-               Canvas.GetLeft(box), _
-               Canvas.GetTop(box), _
-               box.ActualWidth, _
+            Dim rect = New Rect(
+               Canvas.GetLeft(box),
+               Canvas.GetTop(box),
+               box.ActualWidth,
                box.ActualHeight)
 
             If newRect.IntersectsWith(rect) Then
@@ -469,19 +469,19 @@ Partial Public Class DisplayWindow
 
                 End Try
                 ' 隙間がない場合はランダム
-                newRect = New Rect( _
-                    newRect.X, _
-                    randomizer.Next(0, range), _
-                    newRect.Width, _
+                newRect = New Rect(
+                    newRect.X,
+                    randomizer.Next(0, range),
+                    newRect.Width,
                     newRect.Height)
             End If
 
             Return newRect.Top
         Else
-            newRect = New Rect( _
-               newRect.X, _
-               maxTop, _
-               newRect.Width, _
+            newRect = New Rect(
+               newRect.X,
+               maxTop,
+               newRect.Width,
                newRect.Height)
             Return GetNewStackMessageTop(newControl, newRect)
         End If
@@ -537,10 +537,10 @@ Partial Public Class DisplayWindow
         Loop
 
         ' Canvas 配置(中央・一番上)
-        Dim rect As New Rect( _
-            Me.MainCanvas.ActualWidth / 2.0 - box.ActualWidth / 2.0, _
-            TopBottomMargin, _
-            box.ActualWidth, _
+        Dim rect As New Rect(
+            Me.MainCanvas.ActualWidth / 2.0 - box.ActualWidth / 2.0,
+            TopBottomMargin,
+            box.ActualWidth,
             box.ActualHeight)
 
         Canvas.SetLeft(box, rect.Left)
@@ -569,10 +569,10 @@ Partial Public Class DisplayWindow
                 Continue For
             End If
 
-            Dim rect = New Rect( _
-               Canvas.GetLeft(box), _
-               Canvas.GetTop(box), _
-               box.ActualWidth, _
+            Dim rect = New Rect(
+               Canvas.GetLeft(box),
+               Canvas.GetTop(box),
+               box.ActualWidth,
                box.ActualHeight)
 
             If newRect.IntersectsWith(rect) Then
@@ -600,19 +600,19 @@ Partial Public Class DisplayWindow
                 End Try
 
                 ' 隙間がない場合はランダム
-                newRect = New Rect( _
-                    newRect.X, _
-                    randomizer.Next(0, range), _
-                    newRect.Width, _
+                newRect = New Rect(
+                    newRect.X,
+                    randomizer.Next(0, range),
+                    newRect.Width,
                     newRect.Height)
             End If
 
             Return newRect.Top
         Else
-            newRect = New Rect( _
-               newRect.X, _
-               maxBottom, _
-               newRect.Width, _
+            newRect = New Rect(
+               newRect.X,
+               maxBottom,
+               newRect.Width,
                newRect.Height)
             Return GetNewHangerMessageTop(newControl, newRect)
         End If

@@ -1,12 +1,11 @@
-﻿Imports System.Web
-Imports LinqToTwitter
+﻿Imports CoreTweet
 
 Public Class TweetMessage
 
     Public Sub New(ByVal status As Status)
 
-        Me.Text = status.Text
-        Me.ScreenName = status.ScreenName
+        Me.Text = status.FullText
+        Me.ScreenName = status.User.ScreenName
         Me.ImageUri = status.User.ProfileImageUrl
 
     End Sub

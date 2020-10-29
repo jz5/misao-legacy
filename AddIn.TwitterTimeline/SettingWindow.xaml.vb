@@ -1,6 +1,4 @@
-﻿Imports LinqToTwitter
-
-Public Class SettingWindow
+﻿Public Class SettingWindow
 
     Private Setting As TwitTimelineSetting
 
@@ -29,8 +27,8 @@ Public Class SettingWindow
     Private Sub SignUp_Click(sender As Object, e As Windows.RoutedEventArgs) Handles SignUp.Click
         Dim auth = TwitterClient.PinAuthorization()
         If auth IsNot Nothing Then
-            Setting.AccessToken = TwitTimelineSetting.Encrypt(Setting.ToString, auth.Credentials.AccessToken)
-            Setting.OAuthToken = TwitTimelineSetting.Encrypt(Setting.AccessToken, auth.Credentials.OAuthToken)
+            Setting.AccessToken = TwitTimelineSetting.Encrypt(Setting.ToString, auth.AccessToken)
+            Setting.OAuthToken = TwitTimelineSetting.Encrypt(Setting.AccessToken, auth.AccessTokenSecret)
             Me.SignUp.IsEnabled = False
         End If
     End Sub
